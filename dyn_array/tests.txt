@@ -1,0 +1,41 @@
+Tests run on my dynamic array:
+
+push_back function:
+	Tried to create two the reallocating functions of the dynamic array when size limit is 	exceeded
+	First one was using mallocs, and malloc bigger sized memory, then copies current memory into this bigger memory and continue pushing elements in the array 
+	Second one was doing the same thing but I only used realloc
+	
+	Tests using chrono library and compiling with g++ with no -O:
+	 
+	Pushed elements: 1'000'000'000
+	
+	Malloc:
+		Elapsed time in microseconds: 14052 milliseconds
+		
+	Realloc:
+		Elapsed time in microseconds: 23104 milliseconds
+		
+	
+	Pushed elements: 100'000'000
+	
+	Malloc:
+		Elapsed time in microseconds: 1122 milliseconds
+		
+	Realloc:
+		Elapsed time in microseconds: 801 milliseconds
+		
+	std::vector:
+		Elapsed time in microseconds: 1349 milliseconds
+
+	
+	Pushed elements: 10'000'000
+	
+	Malloc:
+		Elapsed time in microseconds: 105 milliseconds
+		
+	Realloc:
+		Elapsed time in microseconds: 67 milliseconds
+		
+	std::vector:
+		Elapsed time in microseconds: 139 milliseconds
+
