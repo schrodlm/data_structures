@@ -4,15 +4,15 @@ ASAN_FLAGS = -fsanitize=address -fno-omit-frame-pointer -Wno-format-security
 DEPS = dynamic_array.h
 OBJ = tests.o dynamic_array.o
 
-compile: out
+compile: output
 
-no_sanitize: out_no_f 
+no_sanitize: no_san 
 
-out: ${OBJ}
-	${CXX} ${BASIC_FLAGS} ${ASAN_FLAGS} $^ -o $@
+output: ${OBJ}
+	${CXX} ${BASIC_FLAGS} ${ASAN_FLAGS} $^ -o $@.out
 
-out_no_f: ${OBJ}
-	${CXX} ${BASIC_FLAGS} $^ -o $@
+no_san: ${OBJ}
+	${CXX} ${BASIC_FLAGS} $^ -o $@.out
 
 
 run: compile
