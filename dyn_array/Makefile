@@ -16,7 +16,7 @@ no_san: ${OBJ}
 
 
 run: compile
-	./out
+	./output.out
 
 %.o: %.cpp $(DEPS)
 	${CXX} ${BASIC_FLAGS} -c $< -o $@

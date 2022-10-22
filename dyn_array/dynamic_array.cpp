@@ -1,16 +1,19 @@
 #include <iostream>
 #include <chrono>
+#include <string>
 #include "dynamic_array.h"
 #include <cstring>
+
 
 /**
  * @brief have to initiliaze my array by allocating data
  * 
  */
-DynArray::DynArray()
+template<typename _T>
+DynArray<_T>::DynArray()
 {
     m_Size = 3;
-    this->m_Data = (int *)malloc(m_Size * sizeof(int));
+    this->m_Data = (_T*)malloc(m_Size * sizeof(_T));
 }
 
 
@@ -18,14 +21,16 @@ DynArray::DynArray()
  * @brief have to deallocate the memory allocated by malloc/realloc
  * 
  */
-DynArray::~DynArray()
+template<typename _T>
+DynArray<_T>::~DynArray()
 {
     free(m_Data);
 }
 
-void DynArray::increase_size()
+template<typename _T>
+void DynArray<_T>::increase_size()
 {
-    m_Data = (int *)realloc(m_Data, (m_Size = (m_Size * 2 + 2)) * sizeof(int));
+    m_Data = (_T *)realloc(m_Data, (m_Size = (m_Size * 2 + 2)) * sizeof(_T));
 }
 
 /**
@@ -33,7 +38,8 @@ void DynArray::increase_size()
  *          -> have it here so I can debug why is it so much slower
  * 
  */
-void DynArray::push_back_malloc(const int element)
+template<typename _T>
+void DynArray<_T>::push_back_malloc(const _T element)
 {
     if (m_Size > m_Pos)
     {
@@ -43,7 +49,7 @@ void DynArray::push_back_malloc(const int element)
 
     //Array is too small to add another element, making it bigger
 
-    int *temp_Data = (int *)malloc((m_Size = (m_Size * 2 + 2)) * sizeof(int));
+    _T *temp_Data = (_T *)malloc((m_Size = (m_Size * 2 + 2)) * sizeof(_T));
 
     for (int i = 0; i < (int)m_Pos; i++)
     {
@@ -63,7 +69,8 @@ void DynArray::push_back_malloc(const int element)
  * @brief insert element to the last place in the array, might have to reallocate the heap 
  * 
  */
-void DynArray::push_back(const int element)
+template<typename _T>
+void DynArray<_T>::push_back(const _T element)
 {
     if (m_Size > m_Pos)
     {
@@ -83,7 +90,8 @@ void DynArray::push_back(const int element)
  * @brief removes last element from the array
  * 
  */
-void DynArray::pop_back()
+template<typename _T>
+void DynArray<_T>::pop_back()
 {
     m_Pos--;
 }
@@ -92,7 +100,8 @@ void DynArray::pop_back()
  * @brief insert one element into specified place
  *  
  */
-void DynArray::insert(size_t pos, const int element)
+template<typename _T>
+void DynArray<_T>::insert(size_t pos, const _T element)
 {
     if(pos > m_Pos) throw std::runtime_error("Provided position out of bounds.");
 
@@ -100,7 +109,7 @@ void DynArray::insert(size_t pos, const int element)
     {
         //moves memory from source to destination by a number of bytes
         // it is used instead of memcpy when copied memory is being overlapped (slightly slower than memcpy)
-        memmove(m_Data + pos + 1,m_Data + pos, (m_Pos-pos) * sizeof(int));
+        memmove(m_Data + pos + 1,m_Data + pos, (m_Pos-pos) * sizeof(_T));
     }
     else 
     {
@@ -112,18 +121,20 @@ void DynArray::insert(size_t pos, const int element)
         m_Pos++;
         return;
 }
-
-const int DynArray::back() const
+template<typename _T>
+const _T DynArray<_T>::back() const
 {
     return m_Data[m_Pos-1];
 }
 
-const int DynArray::size() const
+template<typename _T>
+const int DynArray<_T>::size() const
 {
     return this->m_Pos;
 }
 
-void DynArray::print() const
+template<typename _T>
+void DynArray<_T>::print() const
 {
     std::cout << "{";
     for (int i = 0; i < (int)m_Pos; i++)
@@ -133,4 +144,9 @@ void DynArray::print() const
     }
     std::cout << "}" << std::endl;
 }
+
+    template class DynArray<int>;
+    template class DynArray<std::string>;
+
+
 

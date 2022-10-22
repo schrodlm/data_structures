@@ -5,7 +5,7 @@
 
 int main()
 {
-    DynArray s;
+    DynArray<int> s;
 
     s.push_back(2);
     s.push_back(1);
@@ -26,17 +26,19 @@ int main()
     s.insert(s.size()-1, 17);
     s.insert(s.size(), 13);
     s.insert(s.size(), 5);
+    s.insert(0, 34);
 
 
 
 
     s.print();
 
+    DynArray<std::string> t;
 
     //trying out of bounds
     try
     {
-        s.insert(10, 2);
+        s.insert(100, 2);
     }
 
     catch (const std::runtime_error &e)
@@ -81,4 +83,8 @@ int main()
     // std::cout << "Elapsed time in microseconds: "
     //           << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
     //           << " milliseconds" << std::endl;
+
+
 }
+    template class DynArray<int>;
+    template class DynArray<std::string>;
