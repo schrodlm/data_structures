@@ -26,21 +26,25 @@ public:
     ~BTS();
     void insert_node(const int e);
     bool delete_node(const int e);
+    //used when deleting node with two children
+    Node* findLeftMax(Node* node);
 
-    void findMin() const;
-    void findMax() const;
-    void find(const int e) const;
+    int findMin() const;
+    int findMax() const;
+    bool find(const int e) const;
 
     void pred(const int e) const;
     void next(const int e) const;
 
     void print();
 
+    //used in the destructor
     void delete_tree(Node* node);
 
-    Node *root;
+
 
 private:
     void print_inner(const std::string& prefix, const Node* node, bool isLeft);
+    Node *root;
 
 };

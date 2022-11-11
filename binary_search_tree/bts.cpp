@@ -65,9 +65,9 @@ bool BTS::delete_node(const int e)
     if (!root)
         return false;
 
-       Node **del  = &root;
+    Node **del = &root;
 
-    //finding node
+    // finding node
     while ((*del))
     {
         if ((*del)->val > e)
@@ -80,42 +80,63 @@ bool BTS::delete_node(const int e)
             del = &(*del)->right;
         }
 
-        //node found
-        else break;
+        // node found
+        else
+            break;
     }
 
     // node was not found
-    if(!(*del)) return false;
+    if (!(*del))
+        return false;
 
     // 1.case - node is a leaf
-    if(!(*del)->left && !(*del)->right)
+    if (!(*del)->left && !(*del)->right)
     {
         delete *del;
         *del = nullptr;
         return true;
     }
 
-    //2.case - node has one child
+    // 2.case - node has one child
 
-        //only left child
-    if((*del)->left && !(*del)->right)
+    // only left child
+    if ((*del)->left && !(*del)->right)
     {
-        Node* tmp = (*del)->left;
-        delete *del;
-        *del = tmp;
-        return true;
-    }
-    
-    if((*del)->right && !(*del)->left)
-    {
-        Node* tmp = (*del)->right;
+        Node *tmp = (*del)->left;
         delete *del;
         *del = tmp;
         return true;
     }
 
-return true;
+    if ((*del)->right && !(*del)->left)
+    {
+        Node *tmp = (*del)->right;
+        delete *del;
+        *del = tmp;
+        return true;
+    }
 
+    // 3.case - node has two childs
+
+    Node *tmp = findLeftMax(*del);
+    int swap_val = tmp->val;
+    delete_node(tmp->val);
+
+    (*del)->val = swap_val;
+
+    return true;
+}
+
+Node *BTS::findLeftMax(Node *node)
+{
+    node = node->left;
+
+    while (node->right)
+    {
+        node = node->right;
+    }
+
+    return node;
 }
 
 void BTS::print()
@@ -140,3 +161,44 @@ void BTS::print_inner(const std::string &prefix, const Node *node, bool isLeft)
     }
 }
 
+int BTS::findMax() const
+{
+    Node *max = root;
+
+    while (max->right)
+    {
+        max = max->right;
+    }
+
+    return max->val;
+}
+
+int BTS::findMin() const
+{
+    Node *min = root;
+
+    while (min->left)
+    {
+        min = min->left;
+    }
+
+    return min->val;
+}
+
+bool BTS::find(const int e) const
+{
+    Node *toFind = root;
+
+    while (toFind)
+    {
+        if(toFind->val > e)
+            toFind = toFind->left;
+
+        if(toFind->val < e)
+            toFind = toFind->right;
+
+        else return true;
+    }
+
+    return false;
+}
