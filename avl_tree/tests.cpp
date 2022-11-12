@@ -50,36 +50,40 @@ int main()
 
 
 
-    AVL d;
+    // AVL d;
 
-    for(int i = 0; i < 30; i ++)
-    {
-        d.insert_node(i, "dds");
-    }
-
-
-
-
-    d.print();
-    d.printAllInfo();
+    // for(int i = 0; i < 30; i ++)
+    // {
+    //     d.insert_node(i, "dds");
+    // }
 
 
 
-    // AVL l;
 
-    // l.insert_node(1, "fdfd");
-    // l.insert_node(2, "fdfd");
-    // l.insert_node(5, "fdfd");
-
-    // l.print();
-    // l.printAllInfo();
+    // d.print();
+    // d.printAllInfo();
 
 
-    // l.insert_node(3, "fdfd");
+
+    AVL l;
+
+    l.insert_node(1, "fdfd");
+    l.insert_node(2, "fdfd");
+    l.insert_node(5, "fdfd");
 
 
-    // l.print();
-    // l.printAllInfo();
+    l.insert_node(3, "fdfd");
+    l.insert_node(3, "gggg");
+    l.insert_node(3, "ggggffdfd");
+    l.insert_node(3, "ggv");
+    l.insert_node(3, "gggf");
+    l.insert_node(6, "fdfd");
+
+
+    l.delete_node(5, "fdfd");
+
+    l.print();
+    l.printAllInfo();
 
 
     // l.insert_node(4, "fdfd");

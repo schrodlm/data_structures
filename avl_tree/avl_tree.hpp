@@ -36,7 +36,7 @@ public:
     AVL();
     ~AVL();
     void insert_node(const int e, const Product p);
-    bool delete_node(const int e);
+    bool delete_node(const int e, const Product p);
     //used when deleting node with two children
     Node* findLeftMax(Node* node);
 
@@ -58,7 +58,10 @@ public:
 
 
 private:
-    void insert_node(const int e, const Product p, Node* node);
+    bool insert_node(const int e, const Product p, Node* node);
+    bool delete_node(const int e, const Product p, Node* node);
+    bool delete_node(const int e, Node* node);
+
 
     void print_inner(const std::string& prefix, const Node* node, bool isLeft);
     void printAllInfo(Node* node);

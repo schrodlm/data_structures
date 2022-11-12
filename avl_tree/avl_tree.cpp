@@ -1,4 +1,5 @@
 #include <iostream>
+#include <list>
 #include <algorithm>
 #include "avl_tree.hpp"
 
@@ -19,6 +20,7 @@ Node::Node(const int val, const Product p, Node *parent)
 
     this->products.push_back(p);
 }
+
 
 AVL::AVL() : root(nullptr){};
 
@@ -66,10 +68,10 @@ void AVL::insert_node(const int e, const Product p)
     insert_node(e, p, root);
 }
 
-void AVL::insert_node(const int e, const Product p, Node *node)
+bool AVL::insert_node(const int e, const Product p, Node *node)
 {
 
-    //GOES INTO LEFT SUBTREE
+    // GOES INTO LEFT SUBTREE
     if (node->val > e)
     {
         if (node->left == nullptr)
@@ -77,16 +79,17 @@ void AVL::insert_node(const int e, const Product p, Node *node)
             node->left = new Node(e, p, node);
             int rightSubtreeHeight = 0;
             (node->right) ? rightSubtreeHeight = node->right->height : 0;
-            node->height = std::max(rightSubtreeHeight, node->left->height)+1;
-            node->balanceFactor = rightSubtreeHeight - node->left->height; 
+            node->height = std::max(rightSubtreeHeight, node->left->height) + 1;
+            node->balanceFactor = rightSubtreeHeight - node->left->height;
             node->leftTreeSize++;
 
-            return;
+            return true;
         }
-        insert_node(e, p, node->left);
+        if (!insert_node(e, p, node->left))
+            return false;
 
         node->leftTreeSize++;
-        
+
         int childBF = node->left->balanceFactor;
         // Information about height of subtrees
         int leftSubstreeHeight;
@@ -107,10 +110,11 @@ void AVL::insert_node(const int e, const Product p, Node *node)
         // Double rotation LR
         else if (node->balanceFactor == -2 && childBF == 1)
             LR_rotation(node, node->left, node->left->right);
+
+        return true;
     }
 
-
-    //GOES INTO RIGHT SUBTREE
+    // GOES INTO RIGHT SUBTREE
     else if (node->val < e)
     {
         if (node->right == nullptr)
@@ -118,11 +122,12 @@ void AVL::insert_node(const int e, const Product p, Node *node)
             node->right = new Node(e, p, node);
             int leftSubtreeHeight = 0;
             (node->left) ? leftSubtreeHeight = node->left->height : 0;
-            node->height = std::max(leftSubtreeHeight, node->right->height)+1;
+            node->height = std::max(leftSubtreeHeight, node->right->height) + 1;
             node->balanceFactor = node->right->height - leftSubtreeHeight;
-            return;
+            return true;
         }
-        insert_node(e, p, node->right);
+        if (!insert_node(e, p, node->right))
+            return false;
         int childBF = node->right->balanceFactor;
 
         // Information about height of subtrees
@@ -143,12 +148,15 @@ void AVL::insert_node(const int e, const Product p, Node *node)
         // Double rotation RL
         else if (node->balanceFactor == 2 && childBF == -1)
             RL_rotation(node, node->right, node->right->left);
+
+        return true;
     }
 
     // this number of sold products is already in the tree
     else
     {
         node->products.push_back(p);
+        return false;
     }
 }
 
@@ -159,72 +167,256 @@ void AVL::insert_node(const int e, const Product p, Node *node)
  * @return true
  * @return false
  */
-bool AVL::delete_node(const int e)
+bool AVL::delete_node(const int e, Product p)
 {
-    // empty tree
-    if (!root)
+    // base case
+    if (!this->root)
+    {
+        return false;
+    }
+
+    return delete_node(e, p, root);
+}
+
+bool AVL::delete_node(const int e, Product p, Node *node)
+{
+    // node doesnt exist
+    if (!node)
         return false;
 
-    Node **del = &root;
-
-    // finding node
-    while ((*del))
+    if (node->val > e)
     {
-        if ((*del)->val > e)
+        if (!delete_node(e, p, node->left))
+            return false;
+
+        node->leftTreeSize--;
+
+        int childBF = (node->left) ? node->left->balanceFactor : 0;
+        // Information about height of subtrees
+        int leftSubstreeHeight;
+        (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
+        int rightSubtreeHeight;
+        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
+
+        node->height = std::max(rightSubtreeHeight, leftSubstreeHeight) + 1;
+
+        // Calculating balanceFactor of this node
+        node->balanceFactor = rightSubtreeHeight - leftSubstreeHeight;
+
+        // should we rotate?
+
+        // Primitive rotation L
+        if (node->balanceFactor == -2 && childBF == -1)
+            R_rotation(node, node->left);
+        // Double rotation LR
+        else if (node->balanceFactor == -2 && childBF == 1)
+            LR_rotation(node, node->left, node->left->right);
+
+        return true;
+    }
+
+    else if (node->val < e)
+    {
+        if (!delete_node(e, p, node->right))
+            return false;
+
+        int childBF = (node->right) ? node->right->balanceFactor : 0;
+
+        // Information about height of subtrees
+        int leftSubtreeHeight;
+        (node->left) ? leftSubtreeHeight = node->left->height : leftSubtreeHeight = 0;
+        int rightSubtreeHeight;
+        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
+
+        node->height = std::max(rightSubtreeHeight, leftSubtreeHeight) + 1;
+
+        // Calculating balanceFactor of this node
+        node->balanceFactor = rightSubtreeHeight - leftSubtreeHeight;
+
+        // Primitive rotation L
+        if (node->balanceFactor == 2 && childBF == 1)
+            L_rotation(node, node->right);
+
+        // Double rotation RL
+        else if (node->balanceFactor == 2 && childBF == -1)
+            RL_rotation(node, node->right, node->right->left);
+
+        return true;
+    }
+
+    // node was found
+    else
+    {
+        //check if the product to delete is the only one in the list
+        if(node->products.size() > 1) 
         {
-            del = &(*del)->left;
+            node->products.remove(p);
+            return false;
         }
 
-        else if ((*del)->val < e)
+
+
+        // 1.case: Node is a leaf
+        if (!node->left && !node->right)
         {
-            del = &(*del)->right;
+            if (node->parent->val < e)
+                node->parent->right = nullptr;
+            else
+                node->parent->left = nullptr;
+
+            delete node;
+        }
+        // 2.case: Node has one child
+        else if(node->left && !node->right)
+        {
+            if(node->parent->val < e)
+            {
+                node->parent->right = node->left;
+            }
+            else
+                node->parent->left = node->left;
         }
 
-        // node found
+        else if(node->right && !node->left)
+        {
+            if(node->parent->val < e)
+            {
+                node->parent->right = node->right;
+            }
+            else
+                node->parent->left = node->right;
+
+            delete node;
+
+        }
+
+
+        //3.case: Node has two children
         else
-            break;
+        {
+            Node* tmp = findLeftMax(node);
+            std::list<Product> l = tmp->products;
+            int val = tmp->val;
+
+            //overloaded delete_node function just for this case
+            delete_node(tmp->val, root);
+
+            node->products = l;
+            node->val = val;
+
+            return false;
+        }
+        return true;
+    }
+}
+
+bool AVL::delete_node(const int e, Node* node)
+{
+    // // node doesnt exist
+    // if (!node)
+    //     return false;
+
+    if (node->val > e)
+    {
+        delete_node(e, node->left);
+
+        node->leftTreeSize--;
+
+        int childBF = (node->left) ? node->left->balanceFactor : 0;
+        // Information about height of subtrees
+        int leftSubstreeHeight;
+        (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
+        int rightSubtreeHeight;
+        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
+
+        node->height = std::max(rightSubtreeHeight, leftSubstreeHeight) + 1;
+
+        // Calculating balanceFactor of this node
+        node->balanceFactor = rightSubtreeHeight - leftSubstreeHeight;
+
+        // should we rotate?
+
+        // Primitive rotation L
+        if (node->balanceFactor == -2 && childBF == -1)
+            R_rotation(node, node->left);
+        // Double rotation LR
+        else if (node->balanceFactor == -2 && childBF == 1)
+            LR_rotation(node, node->left, node->left->right);
+
+        return true;
+
     }
 
-    // node was not found
-    if (!(*del))
-        return false;
-
-    // 1.case - node is a leaf
-    if (!(*del)->left && !(*del)->right)
+    else if (node->val < e)
     {
-        delete *del;
-        *del = nullptr;
+        delete_node(e, node->right);
+
+
+        int childBF = (node->right) ? node->right->balanceFactor : 0;
+
+        // Information about height of subtrees
+        int leftSubtreeHeight;
+        (node->left) ? leftSubtreeHeight = node->left->height : leftSubtreeHeight = 0;
+        int rightSubtreeHeight;
+        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
+
+        node->height = std::max(rightSubtreeHeight, leftSubtreeHeight) + 1;
+
+        // Calculating balanceFactor of this node
+        node->balanceFactor = rightSubtreeHeight - leftSubtreeHeight;
+
+        // Primitive rotation L
+        if (node->balanceFactor == 2 && childBF == 1)
+            L_rotation(node, node->right);
+
+        // Double rotation RL
+        else if (node->balanceFactor == 2 && childBF == -1)
+            RL_rotation(node, node->right, node->right->left);
+
         return true;
     }
 
-    // 2.case - node has one child
-
-    // only left child
-    if ((*del)->left && !(*del)->right)
+    // node was found
+    else
     {
-        Node *tmp = (*del)->left;
-        delete *del;
-        *del = tmp;
+
+
+
+        // 1.case: Node is a leaf
+        if (!node->left && !node->right)
+        {
+            if (node->parent->val < e)
+                node->parent->right = nullptr;
+            else
+                node->parent->left = nullptr;
+
+            delete node;
+        }
+        // 2.case: Node has one child
+        else if(node->left && !node->right)
+        {
+            if(node->parent->val < e)
+            {
+                node->parent->right = node->left;
+            }
+            else
+                node->parent->left = node->left;
+
+            delete node;
+        }
+
+        else if(node->right && !node->left)
+        {
+            if(node->parent->val < e)
+            {
+                node->parent->right = node->right;
+            }
+            else
+                node->parent->left = node->right;
+
+        }
         return true;
     }
-
-    if ((*del)->right && !(*del)->left)
-    {
-        Node *tmp = (*del)->right;
-        delete *del;
-        *del = tmp;
-        return true;
-    }
-
-    // 3.case - node has two childs
-
-    Node *tmp = findLeftMax(*del);
-    int swap_val = tmp->val;
-    delete_node(tmp->val);
-
-    (*del)->val = swap_val;
-
-    return true;
 }
 
 Node *AVL::findLeftMax(Node *node)
@@ -405,14 +597,13 @@ void AVL::L_rotation(Node *x, Node *y)
     if (y->right)
         rightSubtreeHY = y->right->height;
 
-    //x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
+    // x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
     y->height = std::max(leftSubtreeHY, x->height) + 1;
 
     x->balanceFactor = (rightSubtreeHX - leftSubtreeHX);
     y->balanceFactor = (rightSubtreeHY - leftSubtreeHY);
 
     y->leftTreeSize += (x->leftTreeSize + 1);
-
 
     if (x == root)
         root = y;
@@ -445,7 +636,6 @@ void AVL::R_rotation(Node *x, Node *y)
 
     x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
 
-
     int leftSubtreeHY = 0;
     if (y->left)
         leftSubtreeHY = y->left->height;
@@ -462,7 +652,6 @@ void AVL::R_rotation(Node *x, Node *y)
         x->leftTreeSize = x->left->leftTreeSize + 1;
     else
         x->leftTreeSize = 0;
-
 
     if (x == root)
         root = y;
