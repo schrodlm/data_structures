@@ -69,9 +69,9 @@ void AVL::insert_node(const int e, const Product p)
 void AVL::insert_node(const int e, const Product p, Node *node)
 {
 
+    //GOES INTO LEFT SUBTREE
     if (node->val > e)
     {
-        node->leftTreeSize++;
         if (node->left == nullptr)
         {
             node->left = new Node(e, p, node);
@@ -79,12 +79,15 @@ void AVL::insert_node(const int e, const Product p, Node *node)
             (node->right) ? rightSubtreeHeight = node->right->height : 0;
             node->height = std::max(rightSubtreeHeight, node->left->height)+1;
             node->balanceFactor = rightSubtreeHeight - node->left->height; 
+            node->leftTreeSize++;
 
             return;
         }
         insert_node(e, p, node->left);
-        int childBF = node->left->balanceFactor;
 
+        node->leftTreeSize++;
+        
+        int childBF = node->left->balanceFactor;
         // Information about height of subtrees
         int leftSubstreeHeight;
         (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
@@ -106,6 +109,8 @@ void AVL::insert_node(const int e, const Product p, Node *node)
             LR_rotation(node, node->left, node->left->right);
     }
 
+
+    //GOES INTO RIGHT SUBTREE
     else if (node->val < e)
     {
         if (node->right == nullptr)
@@ -391,20 +396,23 @@ void AVL::L_rotation(Node *x, Node *y)
     if (x->right)
         rightSubtreeHX = x->right->height;
 
+    x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
+
     int leftSubtreeHY = 0;
     if (y->left)
         leftSubtreeHY = y->left->height;
     int rightSubtreeHY = 0;
     if (y->right)
-        leftSubtreeHY = y->right->height;
+        rightSubtreeHY = y->right->height;
 
-    x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
+    //x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
     y->height = std::max(leftSubtreeHY, x->height) + 1;
 
     x->balanceFactor = (rightSubtreeHX - leftSubtreeHX);
     y->balanceFactor = (rightSubtreeHY - leftSubtreeHY);
 
-    y->leftTreeSize = x->leftTreeSize + 1;
+    y->leftTreeSize += (x->leftTreeSize + 1);
+
 
     if (x == root)
         root = y;
@@ -435,14 +443,16 @@ void AVL::R_rotation(Node *x, Node *y)
     if (x->right)
         rightSubtreeHX = x->right->height;
 
+    x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
+
+
     int leftSubtreeHY = 0;
     if (y->left)
         leftSubtreeHY = y->left->height;
     int rightSubtreeHY = 0;
     if (y->right)
-        leftSubtreeHY = y->right->height;
+        rightSubtreeHY = y->right->height;
 
-    x->height = std::max(leftSubtreeHX, rightSubtreeHX) + 1;
     y->height = std::max(leftSubtreeHY, x->height) + 1;
 
     x->balanceFactor = (rightSubtreeHX - leftSubtreeHX);
@@ -452,6 +462,7 @@ void AVL::R_rotation(Node *x, Node *y)
         x->leftTreeSize = x->left->leftTreeSize + 1;
     else
         x->leftTreeSize = 0;
+
 
     if (x == root)
         root = y;

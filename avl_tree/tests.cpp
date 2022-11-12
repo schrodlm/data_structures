@@ -62,6 +62,39 @@ int main()
 
     d.print();
     d.printAllInfo();
+
+
+
+    // AVL l;
+
+    // l.insert_node(1, "fdfd");
+    // l.insert_node(2, "fdfd");
+    // l.insert_node(5, "fdfd");
+
+    // l.print();
+    // l.printAllInfo();
+
+
+    // l.insert_node(3, "fdfd");
+
+
+    // l.print();
+    // l.printAllInfo();
+
+
+    // l.insert_node(4, "fdfd");
+
+    // l.print();
+    // l.printAllInfo();
+
+    // l.insert_node(8, "fdfd");
+    // l.insert_node(13, "fdfd");
+
+
+    // l.print();
+    // l.printAllInfo();
+
+
     // t.printNodeInfo(13);
     // t.printNodeInfo(4);
 
