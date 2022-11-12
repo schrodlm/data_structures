@@ -81,7 +81,8 @@ int main()
 
 
     l.delete_node(5, "fdfd");
-
+    l.delete_node(2, "fdfd");
+    
     l.print();
     l.printAllInfo();
 

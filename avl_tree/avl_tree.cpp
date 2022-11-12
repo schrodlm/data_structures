@@ -221,6 +221,7 @@ bool AVL::delete_node(const int e, Product p, Node *node)
             return false;
 
         int childBF = (node->right) ? node->right->balanceFactor : 0;
+        
 
         // Information about height of subtrees
         int leftSubtreeHeight;
@@ -259,7 +260,10 @@ bool AVL::delete_node(const int e, Product p, Node *node)
         // 1.case: Node is a leaf
         if (!node->left && !node->right)
         {
-            if (node->parent->val < e)
+            //node to delete is a root
+            if(!node->parent)
+                root = nullptr;
+            else if (node->parent->val < e)
                 node->parent->right = nullptr;
             else
                 node->parent->left = nullptr;
@@ -269,7 +273,9 @@ bool AVL::delete_node(const int e, Product p, Node *node)
         // 2.case: Node has one child
         else if(node->left && !node->right)
         {
-            if(node->parent->val < e)
+            if(!node->parent)
+                root = node->left;
+            else if(node->parent->val < e)
             {
                 node->parent->right = node->left;
             }
@@ -279,7 +285,9 @@ bool AVL::delete_node(const int e, Product p, Node *node)
 
         else if(node->right && !node->left)
         {
-            if(node->parent->val < e)
+            if(!node->parent)
+                root = node->right;
+            else if(node->parent->val < e)
             {
                 node->parent->right = node->right;
             }
