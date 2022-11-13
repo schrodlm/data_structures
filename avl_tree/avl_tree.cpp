@@ -158,7 +158,7 @@ bool AVL::insert_node(const int e, const Product p, Node *node)
 bool AVL::delete_node(const int e, Product p)
 {
     // base case
-    if (!this->root)
+    if (!root)
     {
         return false;
     }
@@ -172,68 +172,10 @@ bool AVL::delete_node(const int e, Product p, Node *node)
     if (!node)
         return false;
 
-    if (node->val > e)
-    {
-        if (!delete_node(e, p, node->left))
-            return false;
-
-        node->leftTreeSize--;
-
-        int childBF = (node->left) ? node->left->balanceFactor : 0;
-        // Information about height of subtrees
-        int leftSubstreeHeight;
-        (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
-        int rightSubtreeHeight;
-        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
-
-        node->height = std::max(rightSubtreeHeight, leftSubstreeHeight) + 1;
-
-        // Calculating balanceFactor of this node
-        node->balanceFactor = rightSubtreeHeight - leftSubstreeHeight;
-
-        // should we rotate?
-
-        // Primitive rotation L
-        if (node->balanceFactor == -2 && childBF == -1)
-            R_rotation(node, node->left);
-        // Double rotation LR
-        else if (node->balanceFactor == -2 && childBF == 1)
-            LR_rotation(node, node->left, node->left->right);
-
-        return true;
-    }
-
-    else if (node->val < e)
-    {
-        if (!delete_node(e, p, node->right))
-            return false;
-
-        int childBF = (node->right) ? node->right->balanceFactor : 0;
-
-        // Information about height of subtrees
-        int leftSubtreeHeight;
-        (node->left) ? leftSubtreeHeight = node->left->height : leftSubtreeHeight = 0;
-        int rightSubtreeHeight;
-        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
-
-        node->height = std::max(rightSubtreeHeight, leftSubtreeHeight) + 1;
-
-        // Calculating balanceFactor of this node
-        node->balanceFactor = rightSubtreeHeight - leftSubtreeHeight;
-
-        // Primitive rotation L
-        if (node->balanceFactor == 2 && childBF == 1)
-            L_rotation(node, node->right);
-
-        // Double rotation RL
-        else if (node->balanceFactor == 2 && childBF == -1)
-            RL_rotation(node, node->right, node->right->left);
-
-        return true;
-    }
-
-    // node was found
-    else
+    //============================================
+    // NODE WAS FOUND
+    //============================================
+    if(node->val == e)
     {
         // check if the product to delete is the only one in the list
         if (node->products.size() > 1)
@@ -299,21 +241,34 @@ bool AVL::delete_node(const int e, Product p, Node *node)
         }
         return true;
     }
-}
 
-bool AVL::delete_node(const int e, Node *node)
-{
-    // // node doesnt exist
-    // if (!node)
-    //     return false;
+
+    //============================================
+    // FINDING NODE
+    //============================================
 
     if (node->val > e)
     {
-        delete_node(e, node->left);
+        if (!delete_node(e, p, node->left))
+            return false;
 
         node->leftTreeSize--;
+    }
 
-        int childBF = (node->left) ? node->left->balanceFactor : 0;
+    else if (node->val < e)
+    {
+        if (!delete_node(e, p, node->right))
+            return false;
+
+    }
+
+    //============================================
+    // BACKTRACKING AND CHECKING STRUCTURE OF THE TREE
+    //============================================
+    
+
+        int rightChildBF = (node->right) ? node->right->balanceFactor : 0;
+        int leftChildBF = (node->left) ? node->left->balanceFactor : 0;
         // Information about height of subtrees
         int leftSubstreeHeight;
         (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
@@ -328,45 +283,27 @@ bool AVL::delete_node(const int e, Node *node)
         // should we rotate?
 
         // Primitive rotation L
-        if (node->balanceFactor == -2 && childBF == -1)
+        if (node->balanceFactor == -2 && leftChildBF == -1)
             R_rotation(node, node->left);
         // Double rotation LR
-        else if (node->balanceFactor == -2 && childBF == 1)
+        else if (node->balanceFactor == -2 && leftChildBF == 1)
             LR_rotation(node, node->left, node->left->right);
 
-        return true;
-    }
-
-    else if (node->val < e)
-    {
-        delete_node(e, node->right);
-
-        int childBF = (node->right) ? node->right->balanceFactor : 0;
-
-        // Information about height of subtrees
-        int leftSubtreeHeight;
-        (node->left) ? leftSubtreeHeight = node->left->height : leftSubtreeHeight = 0;
-        int rightSubtreeHeight;
-        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
-
-        node->height = std::max(rightSubtreeHeight, leftSubtreeHeight) + 1;
-
-        // Calculating balanceFactor of this node
-        node->balanceFactor = rightSubtreeHeight - leftSubtreeHeight;
-
-        // Primitive rotation L
-        if (node->balanceFactor == 2 && childBF == 1)
+                // Primitive rotation L
+        else if (node->balanceFactor == 2 && rightChildBF == 1)
             L_rotation(node, node->right);
 
         // Double rotation RL
-        else if (node->balanceFactor == 2 && childBF == -1)
+        else if (node->balanceFactor == 2 && rightChildBF == -1)
             RL_rotation(node, node->right, node->right->left);
 
         return true;
-    }
+}
 
-    // node was found
-    else
+bool AVL::delete_node(const int e, Node *node)
+{
+        // node was found
+    if(node->val == e)
     {
 
         // 1.case: Node is a leaf
@@ -403,6 +340,50 @@ bool AVL::delete_node(const int e, Node *node)
         }
         return true;
     }
+
+    if (node->val > e)
+    {
+        delete_node(e, node->left);
+    }
+
+    else if (node->val < e)
+    {
+        delete_node(e, node->right);
+    }
+        
+        
+        int rightChildBF = (node->right) ? node->right->balanceFactor : 0;
+        int leftChildBF = (node->left) ? node->left->balanceFactor : 0;
+        // Information about height of subtrees
+        int leftSubstreeHeight;
+        (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
+        int rightSubtreeHeight;
+        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
+
+        node->height = std::max(rightSubtreeHeight, leftSubstreeHeight) + 1;
+
+        // Calculating balanceFactor of this node
+        node->balanceFactor = rightSubtreeHeight - leftSubstreeHeight;
+
+        // should we rotate?
+
+        // Primitive rotation L
+        if (node->balanceFactor == -2 && leftChildBF == -1)
+            R_rotation(node, node->left);
+        // Double rotation LR
+        else if (node->balanceFactor == -2 && leftChildBF == 1)
+            LR_rotation(node, node->left, node->left->right);
+
+                // Primitive rotation L
+        else if (node->balanceFactor == 2 && rightChildBF == 1)
+            L_rotation(node, node->right);
+
+        // Double rotation RL
+        else if (node->balanceFactor == 2 && rightChildBF == -1)
+            RL_rotation(node, node->right, node->right->left);
+
+    return true;
+
 }
 
 Node *AVL::findLeftMax(Node *node)
