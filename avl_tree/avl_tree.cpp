@@ -21,7 +21,6 @@ Node::Node(const int val, const Product p, Node *parent)
     this->products.push_back(p);
 }
 
-
 AVL::AVL() : root(nullptr){};
 
 AVL::~AVL()
@@ -71,6 +70,13 @@ void AVL::insert_node(const int e, const Product p)
 bool AVL::insert_node(const int e, const Product p, Node *node)
 {
 
+    // this number of sold products is already in the tree
+    if (node->val == e)
+    {
+        node->products.push_back(p);
+        return false;
+    }
+
     // GOES INTO LEFT SUBTREE
     if (node->val > e)
     {
@@ -89,29 +95,6 @@ bool AVL::insert_node(const int e, const Product p, Node *node)
             return false;
 
         node->leftTreeSize++;
-
-        int childBF = node->left->balanceFactor;
-        // Information about height of subtrees
-        int leftSubstreeHeight;
-        (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
-        int rightSubtreeHeight;
-        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
-
-        node->height = std::max(rightSubtreeHeight, leftSubstreeHeight) + 1;
-
-        // Calculating balanceFactor of this node
-        node->balanceFactor = rightSubtreeHeight - leftSubstreeHeight;
-
-        // should we rotate?
-
-        // Primitive rotation L
-        if (node->balanceFactor == -2 && childBF == -1)
-            R_rotation(node, node->left);
-        // Double rotation LR
-        else if (node->balanceFactor == -2 && childBF == 1)
-            LR_rotation(node, node->left, node->left->right);
-
-        return true;
     }
 
     // GOES INTO RIGHT SUBTREE
@@ -128,36 +111,41 @@ bool AVL::insert_node(const int e, const Product p, Node *node)
         }
         if (!insert_node(e, p, node->right))
             return false;
-        int childBF = node->right->balanceFactor;
-
-        // Information about height of subtrees
-        int leftSubtreeHeight;
-        (node->left) ? leftSubtreeHeight = node->left->height : leftSubtreeHeight = 0;
-        int rightSubtreeHeight;
-        (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
-
-        node->height = std::max(rightSubtreeHeight, leftSubtreeHeight) + 1;
-
-        // Calculating balanceFactor of this node
-        node->balanceFactor = rightSubtreeHeight - leftSubtreeHeight;
-
-        // Primitive rotation L
-        if (node->balanceFactor == 2 && childBF == 1)
-            L_rotation(node, node->right);
-
-        // Double rotation RL
-        else if (node->balanceFactor == 2 && childBF == -1)
-            RL_rotation(node, node->right, node->right->left);
-
-        return true;
     }
 
-    // this number of sold products is already in the tree
-    else
-    {
-        node->products.push_back(p);
-        return false;
-    }
+    int leftChildBF = (node->left) ? node->left->balanceFactor : 0;
+
+    int rightChildBF =(node->right) ? node->right->balanceFactor : 0;
+
+    // Information about height of subtrees
+    int leftSubstreeHeight;
+    (node->left) ? leftSubstreeHeight = node->left->height : leftSubstreeHeight = 0;
+    int rightSubtreeHeight;
+    (node->right) ? rightSubtreeHeight = node->right->height : rightSubtreeHeight = 0;
+
+    node->height = std::max(rightSubtreeHeight, leftSubstreeHeight) + 1;
+
+    // Calculating balanceFactor of this node
+    node->balanceFactor = rightSubtreeHeight - leftSubstreeHeight;
+
+    // should we rotate?
+
+    // Primitive rotation L
+    if (node->balanceFactor == -2 && leftChildBF == -1)
+        R_rotation(node, node->left);
+    // Double rotation LR
+    else if (node->balanceFactor == -2 && leftChildBF == 1)
+        LR_rotation(node, node->left, node->left->right);
+
+    // Primitive rotation L
+    else if (node->balanceFactor == 2 && rightChildBF == 1)
+        L_rotation(node, node->right);
+
+    // Double rotation RL
+    else if (node->balanceFactor == 2 && rightChildBF == -1)
+        RL_rotation(node, node->right, node->right->left);
+
+    return true;
 }
 
 /**
@@ -221,7 +209,6 @@ bool AVL::delete_node(const int e, Product p, Node *node)
             return false;
 
         int childBF = (node->right) ? node->right->balanceFactor : 0;
-        
 
         // Information about height of subtrees
         int leftSubtreeHeight;
@@ -248,20 +235,18 @@ bool AVL::delete_node(const int e, Product p, Node *node)
     // node was found
     else
     {
-        //check if the product to delete is the only one in the list
-        if(node->products.size() > 1) 
+        // check if the product to delete is the only one in the list
+        if (node->products.size() > 1)
         {
             node->products.remove(p);
             return false;
         }
 
-
-
         // 1.case: Node is a leaf
         if (!node->left && !node->right)
         {
-            //node to delete is a root
-            if(!node->parent)
+            // node to delete is a root
+            if (!node->parent)
                 root = nullptr;
             else if (node->parent->val < e)
                 node->parent->right = nullptr;
@@ -271,11 +256,11 @@ bool AVL::delete_node(const int e, Product p, Node *node)
             delete node;
         }
         // 2.case: Node has one child
-        else if(node->left && !node->right)
+        else if (node->left && !node->right)
         {
-            if(!node->parent)
+            if (!node->parent)
                 root = node->left;
-            else if(node->parent->val < e)
+            else if (node->parent->val < e)
             {
                 node->parent->right = node->left;
             }
@@ -283,11 +268,11 @@ bool AVL::delete_node(const int e, Product p, Node *node)
                 node->parent->left = node->left;
         }
 
-        else if(node->right && !node->left)
+        else if (node->right && !node->left)
         {
-            if(!node->parent)
+            if (!node->parent)
                 root = node->right;
-            else if(node->parent->val < e)
+            else if (node->parent->val < e)
             {
                 node->parent->right = node->right;
             }
@@ -295,18 +280,16 @@ bool AVL::delete_node(const int e, Product p, Node *node)
                 node->parent->left = node->right;
 
             delete node;
-
         }
 
-
-        //3.case: Node has two children
+        // 3.case: Node has two children
         else
         {
-            Node* tmp = findLeftMax(node);
+            Node *tmp = findLeftMax(node);
             std::list<Product> l = tmp->products;
             int val = tmp->val;
 
-            //overloaded delete_node function just for this case
+            // overloaded delete_node function just for this case
             delete_node(tmp->val, root);
 
             node->products = l;
@@ -318,7 +301,7 @@ bool AVL::delete_node(const int e, Product p, Node *node)
     }
 }
 
-bool AVL::delete_node(const int e, Node* node)
+bool AVL::delete_node(const int e, Node *node)
 {
     // // node doesnt exist
     // if (!node)
@@ -352,13 +335,11 @@ bool AVL::delete_node(const int e, Node* node)
             LR_rotation(node, node->left, node->left->right);
 
         return true;
-
     }
 
     else if (node->val < e)
     {
         delete_node(e, node->right);
-
 
         int childBF = (node->right) ? node->right->balanceFactor : 0;
 
@@ -388,8 +369,6 @@ bool AVL::delete_node(const int e, Node* node)
     else
     {
 
-
-
         // 1.case: Node is a leaf
         if (!node->left && !node->right)
         {
@@ -401,9 +380,9 @@ bool AVL::delete_node(const int e, Node* node)
             delete node;
         }
         // 2.case: Node has one child
-        else if(node->left && !node->right)
+        else if (node->left && !node->right)
         {
-            if(node->parent->val < e)
+            if (node->parent->val < e)
             {
                 node->parent->right = node->left;
             }
@@ -413,15 +392,14 @@ bool AVL::delete_node(const int e, Node* node)
             delete node;
         }
 
-        else if(node->right && !node->left)
+        else if (node->right && !node->left)
         {
-            if(node->parent->val < e)
+            if (node->parent->val < e)
             {
                 node->parent->right = node->right;
             }
             else
                 node->parent->left = node->right;
-
         }
         return true;
     }
