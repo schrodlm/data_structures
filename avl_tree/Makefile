@@ -1,7 +1,7 @@
 CXX = g++
 BASIC_FLAGS = -g -Wall -pedantic
 ASAN_FLAGS = -fsanitize=address -fno-omit-frame-pointer -Wno-format-security
-OBJ = tests.o avl_tree.o
+OBJ = tests.o
 
 compile: output
 
@@ -16,6 +16,10 @@ run: compile
 
 %.o: %.cpp %.hpp
 	${CXX} ${BASIC_FLAGS} -c $< -o $@
+
+graph: compile
+	./a.out | dot -Tsvg > graph.png
+
 
 clean:
 	rm *.o
